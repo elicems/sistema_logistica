@@ -1,110 +1,53 @@
 package edu.br.log.service;
 
-import edu.br.log.dao.ConnectionFactory;
+import edu.br.log.dao.EstoqueDAO;
 import edu.br.log.model.ItemEstoque;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 public class EstoqueService {
-    public int inserirItem(ItemEstoque item) throws SQLException{
-        String sql = "insert into produtos (nome_produto,sku,ean,quantidade,preco_venda) values (?,?,?,?,?)";
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
-            ps.setString(1, item.getNomeProduto());
-            ps.setString(2,item.getSku());
-            ps.setString(3,item.getEan());
-            ps.setInt(4,item.getQuantidade());
-            ps.setDouble(5,item.getPrecoVenda());
+    private final EstoqueDAO dao = new EstoqueDAO();
 
-            int linhas = ps.executeUpdate();
-            if(linhas == 0){
-                throw new SQLException("Inserção falhou: nenhuma linha afetada");
-            }
-            try(ResultSet rs = ps.getGeneratedKeys()){
-                if (rs.next()){
-                    return rs.getInt(1);
-                }
-            }
-            throw new SQLException("Inserção falhou: não foi possível obter o ID gerado.");
-        }
+    public int criar(ItemEstoque item)throws SQLException{
+        validar(item);
+        return dao.inserirItem(item);
     }
-    public boolean atualizarItem(ItemEstoque item) throws SQLException{
-        String sql = "update produtos set nome_produto=?,sku=?,ean=?,quantidade=?,preco_venda=? where id=?";
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-
-            ps.setString(1, item.getNomeProduto());
-            ps.setString(2, item.getSku());
-            ps.setString(3,item.getEan());
-            ps.setInt(4,item.getQuantidade());
-            ps.setDouble(5,item.getPrecoVenda());
-            ps.setInt(6,item.getId());
-
-            return ps.executeUpdate() > 0;
+    public boolean atualizar(ItemEstoque item)throws SQLException{
+        if(item.getId() == null){
+            throw new IllegalArgumentException("Produto sem ID não pode ser atualizado");
         }
+        validar(item);
+        return dao.atualizarItem(item);
     }
-    public boolean removerPorID(int id)throws SQLException{
-        String sql = "delete from produtos where id=?";
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-                ps.setInt(1,id);
-                return ps.executeUpdate() > 0;
+    public boolean remover(int id)throws SQLException{
+        if(id<= 0){
+            throw new IllegalArgumentException("ID inválido");
         }
+        return dao.removerPorID(id);
     }
-    public ItemEstoque bucarPorID(int id)throws SQLException{
-        String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos where id=?";
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setInt(1,id);
-
-            try(ResultSet rs = ps.executeQuery()){
-                if(rs.next()){
-                    return mapItemEstoque(rs);
-                }
-                return null;
-            }
+    public ItemEstoque buscar(int id)throws SQLException{
+        if(id<=0){
+            throw new IllegalArgumentException("ID inválido");
         }
+        return dao.bucarPorID(id);
     }
-    public List<ItemEstoque> listarTodos()throws SQLException{
-        String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos order by id";
-        List<ItemEstoque> lista = new ArrayList<>();
-
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()){
-
-            while (rs.next()){
-                lista.add(mapItemEstoque(rs));
-            }
-        }
-        return lista;
+    public List<ItemEstoque> listar()throws SQLException{
+        return dao.listarTodos();
     }
     public List<ItemEstoque> buscarPorNome(String trecho)throws SQLException{
-        String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos where nome_produto like ? order by nome";
-        List<ItemEstoque> lista = new ArrayList<>();
-
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-
-            ps.setString(1,"%" + trecho + "%");
-            try(ResultSet rs = ps.executeQuery()){
-                while (rs.next()){
-                    lista.add(mapItemEstoque(rs));
-                }
-            }
-        }
-        return lista;
+        if(trecho==null)trecho = "";
+        return dao.buscarPorNome(trecho.trim());
     }
-    private ItemEstoque mapItemEstoque(ResultSet rs)throws SQLException{
-        return new ItemEstoque(
-                rs.getInt("id"),
-                rs.getString("nome_produto"),
-                rs.getString("sku"),
-                rs.getString("ean"),
-                rs.getInt("quantidade"),
-                rs.getDouble("preco_venda")
-        );
+    private void validar(ItemEstoque item){
+        if(item.getNomeProduto() == null || item.getNomeProduto().trim().isEmpty()){
+            throw new IllegalArgumentException("Nome é obrigatório");
+        }
+        if(item.getEan() == null ||item.getEan().trim().isEmpty()){
+            throw new IllegalArgumentException("EAN é obrigatório");
+        }
+        if(item.getSku() == null||item.getSku().trim().isEmpty()){
+            throw new IllegalArgumentException("SKU é obrigatório");
+        }
     }
 }
