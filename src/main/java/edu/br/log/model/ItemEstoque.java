@@ -17,6 +17,14 @@ public class ItemEstoque {
         this.quantidade = quantidade;
     }
     public ItemEstoque(String nomeProduto, String sku, String ean, Integer quantidade, Double precoVenda) {
+        this.nomeProduto = nomeProduto;
+        this.sku = sku;
+        this.ean = ean;
+        this.quantidade = quantidade;
+        this.precoVenda = precoVenda;
+    }
+
+    public ItemEstoque(Integer id, String nomeProduto, String sku, String ean, Integer quantidade, Double precoVenda) {
         this.id = id;
         this.nomeProduto = nomeProduto;
         this.sku = sku;
