@@ -77,28 +77,22 @@ public class ItemEstoque {
         return precoVenda;
     }
 
+    @Override
+    public String toString() {
+        return "ItemEstoque{" +
+                "id=" + id +
+                ", nomeProduto='" + nomeProduto + '\'' +
+                ", sku='" + sku + '\'' +
+                ", ean='" + ean + '\'' +
+                ", quantidade=" + quantidade +
+                ", precoVenda=" + precoVenda +
+                '}';
+    }
+
     public void setPrecoVenda(Double precoVenda) {
         this.precoVenda = precoVenda;
     }
-    public void addItemEstoque(Integer quantidade){
-        if(quantidade == null || quantidade <=0){
-            throw new IllegalArgumentException("A quantidade a ser adicionada deve ser maior que 0!");
-        }else {
-            this.quantidade += quantidade;
-        }
-    }
-    public void removerItemEstoque(Integer quantidade){
-        if(quantidade == null || quantidade <= 0){
-            throw new IllegalArgumentException("A quantidade a ser removida deve ser maior que 0");
-        }
-        if(quantidade > this.quantidade){
-            throw new IllegalArgumentException("Saldo insuficiente. Disponível: " + this.quantidade);
-        }
-        this.quantidade -= quantidade;
-    }
-    public boolean estoqueDisponivel(){
-        return this.quantidade >0;
-    }
+
 
 
 }

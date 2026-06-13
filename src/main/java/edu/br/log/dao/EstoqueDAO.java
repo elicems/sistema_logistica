@@ -1,12 +1,14 @@
 package edu.br.log.dao;
 
 import edu.br.log.model.ItemEstoque;
+import edu.br.log.model.Pedido;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EstoqueDAO {
+
     public int inserirItem(ItemEstoque item) throws SQLException{
         String sql = "insert into produtos (nome_produto,sku,ean,quantidade,preco_venda) values (?,?,?,?,?)";
         try(Connection conn = ConnectionFactory.getConnection();
@@ -44,6 +46,16 @@ public class EstoqueDAO {
             return ps.executeUpdate() > 0;
         }
     }
+    public boolean atualizarEstoque(int id,int qtd)throws SQLException{
+        String sql = "update produtos set quantidade = quantidade - ? where id = ?";
+        try(Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1,qtd);
+            ps.setInt(2,id);
+
+            return ps.executeUpdate()>0;
+        }
+    }
     public boolean removerPorID(int id)throws SQLException{
         String sql = "delete from produtos where id=?";
         try(Connection conn = ConnectionFactory.getConnection();
@@ -52,6 +64,7 @@ public class EstoqueDAO {
                 return ps.executeUpdate() > 0;
         }
     }
+
     public ItemEstoque bucarPorID(int id)throws SQLException{
         String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos where id=?";
         try(Connection conn = ConnectionFactory.getConnection();
@@ -81,13 +94,13 @@ public class EstoqueDAO {
         return lista;
     }
     public List<ItemEstoque> buscarPorNome(String trecho)throws SQLException{
-        String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos where nome_produto like ? order by nome";
+        String sql = "select id,nome_produto,sku,ean,quantidade,preco_venda from produtos where nome_produto like ? order by nome_produto";
         List<ItemEstoque> lista = new ArrayList<>();
 
         try(Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)){
 
-            ps.setString(1,"%" + trecho + "%");
+            ps.setString(1,"%" +trecho+ "%");
             try(ResultSet rs = ps.executeQuery()){
                 while (rs.next()){
                     lista.add(mapItemEstoque(rs));

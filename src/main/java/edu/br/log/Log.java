@@ -8,5 +8,7 @@ import java.sql.SQLException;
 public class Log {
     public static void main(String[] args) throws SQLException {
         ConnectionFactory.getConnection();
+        ConsoleView cv = new ConsoleView();
+        cv.inicar();
     }
 }

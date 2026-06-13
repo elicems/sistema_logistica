@@ -1,18 +1,20 @@
 package edu.br.log.model;
 
-public class ItemPedido {
+import java.util.List;
+
+public class ItemPedido{
     private Integer id;
     private ItemEstoque produto;
     private Integer quantidade;
-    private Double precoUnitario;
+    private Double precoTotal;
 
     public ItemPedido() {
     }
 
-    public ItemPedido(ItemEstoque produto, Integer quantidade, Double precoUnitario) {
+    public ItemPedido(ItemEstoque produto, Integer quantidade, Double precoTotal) {
         this.produto = produto;
         this.quantidade = quantidade;
-        this.precoUnitario = precoUnitario;
+        this.precoTotal = precoTotal;
     }
 
     public Integer getId() {
@@ -39,12 +41,12 @@ public class ItemPedido {
         this.quantidade = quantidade;
     }
 
-    public Double getPrecoUnitario() {
-        return precoUnitario;
+    public Double getPrecoTotal() {
+        return precoTotal;
     }
 
-    public void setPrecoUnitario(Double precoUnitario) {
-        this.precoUnitario = precoUnitario;
+    public void setPrecoTotal(Double precoTotal) {
+        this.precoTotal = precoTotal;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class ItemPedido {
                 "id=" + id +
                 ", produto=" + produto +
                 ", quantidade=" + quantidade +
-                ", precoUnitario=" + precoUnitario +
+                ", precoUnitario=" + precoTotal +
                 '}';
     }
 }

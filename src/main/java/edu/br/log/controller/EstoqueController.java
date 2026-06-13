@@ -17,6 +17,10 @@ public class EstoqueController {
         ItemEstoque i = new ItemEstoque(id,nomeProduto,sku,ean,quantidade,precoVenda);
         return service.atualizar(i);
     }
+    public boolean atualizarEstoque(int id,int qtd)throws SQLException{
+        return service.atualizarEstoque(id,qtd);
+    }
+
     public boolean remover(Integer id)throws SQLException{
         return service.remover(id);
     }

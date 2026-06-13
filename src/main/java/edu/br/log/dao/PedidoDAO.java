@@ -1,19 +1,22 @@
 package edu.br.log.dao;
 
+import edu.br.log.model.ItemEstoque;
+import edu.br.log.model.ItemPedido;
 import edu.br.log.model.Pedido;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//Adicionar horario do pedido!!!
 public class PedidoDAO {
-    public int InserirPedido(Pedido pedido) throws SQLException {
-        String sql = "insert into pedidos(descricao,valor)values(?,?)";
+    public int CriarPedido(Pedido pedido) throws SQLException {
+        String sql = "insert into pedidos(descricao,valor,qtdProdutosPedido)values(?,?,?)";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, pedido.getDescricao());
-            ps.setDouble(2, pedido.getValorTotal());
+                ps.setString(1, pedido.getDescricao());
+                ps.setDouble(2, pedido.getValorTotal());
+                ps.setInt(3,pedido.getQtdProdutosPedido());
 
             int linhas = ps.executeUpdate();
             if (linhas == 0) {
@@ -24,8 +27,8 @@ public class PedidoDAO {
                     pedido.setIdPedido(rs.getInt(1));
                 }
             }
+            throw new SQLException("Inserção falhou: não foi possível obter o ID gerado");
         }
-        throw new SQLException("Inserção falhou: não foi possível obter o ID gerado");
     }
 
     public Pedido buscarPorId(int id) throws SQLException {
@@ -58,10 +61,13 @@ public class PedidoDAO {
         return lista;
     }
 
+
     private Pedido mapPedidos(ResultSet rs) throws SQLException {
         return new Pedido(
                 rs.getString("descricao"),
-                rs.getDouble("valor")
+                rs.getDouble("valor"),
+                rs.getObject("data_pedido",LocalDateTime.class),
+                rs.getInt("qtdProdutosPedido")
         );
     }
 }

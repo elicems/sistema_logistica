@@ -9,7 +9,7 @@ import edu.br.log.model.Pedido;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,8 +28,8 @@ public class ConsoleView {
             try {
                 switch (op){
                     case 1 -> inicarProdutos();
-                    case 2 -> menuCliente();
-                    case 3 -> menuPedidos();
+                    case 2 -> iniciarCliente();
+                    case 3 -> iniciarPedido();
                     case 0 -> System.out.println("Encerrando...");
                     default -> System.out.println("Opção inválida");
                 }
@@ -54,8 +54,7 @@ public class ConsoleView {
                     case 4 -> buscarProdutoPorNome();
                     case 5 -> atualizarProduto();
                     case 6 -> removerProduto();
-                    case 7 -> menu();
-                    case 0 -> System.out.println("Encerrando...");
+                    case 0 -> System.out.println("Voltando para o menu...");
                     default -> System.out.println("Opção inválida");
                 }
             }catch (SQLException e) {
@@ -63,7 +62,7 @@ public class ConsoleView {
             }
         }while (op != 0);
     }
-    private void IniciarCliente(){
+    private void iniciarCliente(){
         int op;
         do{
             menuCliente();
@@ -131,8 +130,7 @@ public class ConsoleView {
         System.out.println("4) Buscar produto por nome (trecho)");
         System.out.println("5) Atualizar produto");
         System.out.println("6) Remover produto");
-        System.out.println("7) Voltar para o menu principal");
-        System.out.println("0) Sair");
+        System.out.println("0) Voltar para o menu principal");
     }
     private void menuCliente(){
         System.out.println("\n=== CRUD Cadastro de clientes ===");
@@ -142,8 +140,7 @@ public class ConsoleView {
         System.out.println("4) Buscar cliente por nome (trecho)");
         System.out.println("5) Atualizar cadastro cliente");
         System.out.println("6) Remover cadastro cliente");
-        System.out.println("7) Voltar para o menu principal");
-        System.out.println("0) sair");
+        System.out.println("0) Voltar para o menu principal");
     }
     private void menuPedidos(){
         System.out.println("\n=== CRUD de pedidos ===");
@@ -172,7 +169,7 @@ public class ConsoleView {
             return;
         }
         for (ItemEstoque i:itens){
-            System.out.println(i);
+            System.out.println(i.toString());
         }
     }
     private void buscarProdutoPorId()throws SQLException{
@@ -254,7 +251,7 @@ public class ConsoleView {
         String nome = lerLinha("Nome cliente: ");
         String email = lerLinha("Email cliente: ");
 
-        boolean ok = clienteController.atualizarCliente(nome,email);
+        boolean ok = clienteController.atualizarCliente(id,nome,email);
         System.out.println(ok?"Atualizado com sucesso":"Id não encontrado");
     }
     private void removerCadastroCliente()throws SQLException{
@@ -266,12 +263,33 @@ public class ConsoleView {
 
     private void criarPedido()throws SQLException{
         System.out.println("\n---Criar Pedido---");
-        String descricao = lerLinha("Descrição: ");
-        Double valorTot = lerDouble("Valor total: ");
+        List<ItemEstoque> lista = estoqueController.listarItens();
+        for(ItemEstoque i : lista){
+            System.out.println(i);
+        }
+        Integer idProduto = lerInt("Id: ");
+        ItemEstoque itemEncontrado = null;
+        for(ItemEstoque i : lista){
+            if(idProduto.equals(i.getId())){
+                itemEncontrado = i;
+                break;
+            }
+        }
+        if(itemEncontrado == null){
+            System.out.println("Id não encontrado");
+            return;
+        }
+        String descricao = itemEncontrado.getNomeProduto();
         LocalDateTime dataPedido = LocalDateTime.now();
         Integer quantidade = lerInt("Informe a quantidade: ");
-
+        if(quantidade > itemEncontrado.getQuantidade()){
+            System.out.println("Quantidade maior");
+            return;
+        }
+        estoqueController.atualizarEstoque(idProduto,quantidade);
+        Double valorTot = quantidade * itemEncontrado.getPrecoVenda();
         int id = pedidoController.CriarPedido(descricao,valorTot,dataPedido,quantidade);
+
         System.out.println("Pedido registrado com sucesso. Id: " + id);
     }
     private void listarPedidos()throws SQLException{
@@ -291,6 +309,7 @@ public class ConsoleView {
         Pedido p = pedidoController.buscarPedido(id);
         System.out.println(p == null?"Nenhum pedido encontrado":p.toString());
     }
+
     private void imprimirEtiqueta(Pedido pedido){
         System.out.println("Id: " + pedido.getIdPedido());
         System.out.println("Descrição: " + pedido.getDescricao());

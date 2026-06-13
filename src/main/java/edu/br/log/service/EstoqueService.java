@@ -1,13 +1,17 @@
 package edu.br.log.service;
 
 import edu.br.log.dao.EstoqueDAO;
+import edu.br.log.dao.PedidoDAO;
 import edu.br.log.model.ItemEstoque;
+import edu.br.log.model.ItemPedido;
+import edu.br.log.model.Pedido;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class EstoqueService {
     private final EstoqueDAO dao = new EstoqueDAO();
+    private final PedidoService pser = new PedidoService();
 
     public int criar(ItemEstoque item)throws SQLException{
         validar(item);
@@ -20,12 +24,20 @@ public class EstoqueService {
         validar(item);
         return dao.atualizarItem(item);
     }
+    public boolean atualizarEstoque(int id,int qtd)throws SQLException{
+        if(id == 0){
+            throw new IllegalArgumentException("Produto sem id");
+        }
+        return dao.atualizarEstoque(id,qtd);
+    }
+
     public boolean remover(int id)throws SQLException{
         if(id<= 0){
             throw new IllegalArgumentException("ID inválido");
         }
         return dao.removerPorID(id);
     }
+
     public ItemEstoque buscar(int id)throws SQLException{
         if(id<=0){
             throw new IllegalArgumentException("ID inválido");

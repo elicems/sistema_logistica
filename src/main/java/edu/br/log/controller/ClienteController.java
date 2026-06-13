@@ -13,8 +13,8 @@ public class ClienteController {
         Cliente c = new Cliente(nome,email);
         return service.criar(c);
     }
-    public boolean atualizarCliente(String nome,String email)throws SQLException{
-        Cliente c = new Cliente(nome,email);
+    public boolean atualizarCliente(Integer id,String nome,String email)throws SQLException{
+        Cliente c = new Cliente(id,nome,email);
         return service.atualizarCliente(c);
     }
     public boolean remover(Integer id)throws SQLException{

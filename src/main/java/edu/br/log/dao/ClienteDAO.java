@@ -28,12 +28,13 @@ public class ClienteDAO {
     }
 
     public boolean atualizarCliente(Cliente cliente) throws SQLException {
-        String sql = "update cliente set (nome_usuario=?,email_usuario=?) values(?,?)";
+        String sql = "update cliente set nome_usuario=?,email_usuario=? where id=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, cliente.getNomeUsuario());
             ps.setString(2, cliente.getEmailUsuario());
+            ps.setInt(3,cliente.getId());
 
             return ps.executeUpdate() > 0;
         }
@@ -49,7 +50,7 @@ public class ClienteDAO {
     }
 
     public Cliente buscarPorId(int id) throws SQLException {
-        String sql = "select nome_usuario,email_usuario from cliente where id=?";
+        String sql = "select id,nome_usuario,email_usuario from cliente where id=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, id);
@@ -63,7 +64,7 @@ public class ClienteDAO {
         return null;
     }
     public List<Cliente> listarClientes()throws SQLException{
-        String sql = "select nome_usuario,email_usuario from cliente order by id";
+        String sql = "select id,nome_usuario,email_usuario from cliente order by id";
         List<Cliente> lista = new ArrayList<>();
         try(Connection conn = ConnectionFactory.getConnection()){
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -75,11 +76,11 @@ public class ClienteDAO {
         return lista;
     }
     public List<Cliente> buscaPorNome(String trecho)throws SQLException{
-        String sql = "select nome_usuario,email_usuario from cliente where id=?";
+        String sql = "select id,nome_usuario,email_usuario from cliente where nome_usuario like ? order by nome_usuario";
         List<Cliente> lista = new ArrayList<>();
         try(Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setString(1,"%" + trecho + "%");
+            ps.setString(1,"%" +trecho+ "%");
             try(ResultSet rs = ps.executeQuery()){
                 while (rs.next()){
                     lista.add(mapCliente(rs));
